@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect
 import json
 from datetime import datetime
+import os
 
 app = Flask(__name__)
 
@@ -99,3 +100,7 @@ def deletar_post(post_id):
             salvar_post()
             return redirect("/")
     return('Post não encontrado',404)
+
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
