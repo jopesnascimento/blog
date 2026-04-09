@@ -1,67 +1,86 @@
-{% extends "base.html" %}
-
-{% block title %}Meu Blog{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}Meu Blog{% endblock %} {% block
+content %}
 <div class="container mx-auto px-4 py-8">
-    <h1 class="text-4xl font-bold text-center mb-8 text-gray-900 dark:text-white">
-        Meu Blog
-    </h1>
+  <h1 class="text-4xl font-bold text-center mb-8 text-gray-900 dark:text-white">
+    Meu Blog
+  </h1>
 
-    <div class="text-center mb-8 flex justify-center gap-3 flex-wrap">
-        {% if logado %}
-            <a href="/novo"
-               class="bg-blue-600 dark:bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600">
-                Criar Novo Post
-            </a>
-            <a href="/logout"
-               class="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-6 py-2 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600">
-                Sair
-            </a>
-        {% else %}
-            <a href="/login"
-               class="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-6 py-2 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600">
-                🔐 Entrar
-            </a>
-        {% endif %}
+  <div class="text-center mb-8 flex justify-center gap-3 flex-wrap">
+    {% if logado %}
+    <a
+      href="/novo"
+      class="bg-blue-600 dark:bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600"
+    >
+      + Criar Novo Post
+    </a>
+    <a
+      href="/logout"
+      class="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-6 py-2 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600"
+    >
+      Sair
+    </a>
+    {% else %}
+    <a
+      href="/login"
+      class="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-6 py-2 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600"
+    >
+      🔐 Entrar
+    </a>
+    {% endif %}
+  </div>
+
+  {% for post in posts %}
+  <article class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+    <h2 class="text-2xl font-bold mb-2">
+      <a
+        href="/post/{{ post._id }}"
+        class="text-blue-600 dark:text-blue-400 hover:underline"
+      >
+        {{ post.titulo }}
+      </a>
+    </h2>
+    <p class="text-gray-700 dark:text-gray-300 mb-4">{{ post.conteudo }}</p>
+    <div class="flex items-center justify-between flex-wrap gap-2">
+      <small class="text-gray-500 dark:text-gray-400">
+        Por {{ post.autor }} • {{ post.data }}
+      </small>
+      {% if logado %}
+      <div class="flex gap-2">
+        <a
+          href="/editar/{{ post._id }}"
+          class="text-sm bg-yellow-500 dark:bg-yellow-600 text-white px-3 py-1 rounded hover:bg-yellow-600 dark:hover:bg-yellow-700"
+        >
+          ✏️ Editar
+        </a>
+        <form
+          action="/deletar/{{ post._id }}"
+          method="POST"
+          class="inline"
+          onsubmit="return confirm('Deletar este post?');"
+        >
+          <button
+            type="submit"
+            class="text-sm bg-red-600 dark:bg-red-700 text-white px-3 py-1 rounded hover:bg-red-700 dark:hover:bg-red-800"
+          >
+            🗑️ Deletar
+          </button>
+        </form>
+      </div>
+      {% endif %}
     </div>
-
-    {% for post in posts %}
-    <article class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-        
-        <h2 class="text-2xl font-bold mb-2">
-            <a href="/post/{{ post._id }}"
-               class="text-blue-600 dark:text-blue-400 hover:underline">
-                {{ post.titulo }}
-            </a>
-        </h2>
-
-        <!-- 🔥 MOSTRA SÓ UM RESUMO -->
-        <p class="text-gray-700 dark:text-gray-300 mb-4">
-            {{ post.conteudo[:200] }}{% if post.conteudo|length > 200 %}...{% endif %}
-        </p>
-
-        <small class="text-gray-500 dark:text-gray-400">
-            Por {{ post.autor }} • {{ post.data }}
-        </small>
-
-        <!-- 🔐 AÇÕES SÓ PARA LOGADO -->
-        {% if logado %}
-        <div class="flex gap-4 mt-4">
-            <a href="/editar/{{ post._id }}"
-               class="text-blue-600 dark:text-blue-400 hover:underline text-sm">
-                Editar
-            </a>
-
-            <form action="/deletar/{{ post._id }}" method="POST">
-                <button class="text-red-500 hover:underline text-sm">
-                    Deletar
-                </button>
-            </form>
-        </div>
-        {% endif %}
-
-    </article>
-    {% endfor %}
+  </article>
+  {% endfor %} {% if not posts %}
+  <div class="text-center py-16 text-gray-400 dark:text-gray-500">
+    <p class="text-xl">Nenhum post ainda.</p>
+    {% if logado %}
+    <a
+      href="/novo"
+      class="text-blue-600 dark:text-blue-400 hover:underline mt-2 inline-block"
+    >
+      Criar o primeiro post →
+    </a>
+    {% endif %}
+  </div>
+  {% endif %}
 </div>
 {% endblock %}

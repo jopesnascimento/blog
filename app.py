@@ -65,7 +65,6 @@ def home_page():
     posts = list(colecao.find().sort("_id", -1))
     return render_template("index.html", posts=posts, logado=usuario_logado())
 
-
 @app.route("/post/<post_id>")
 def post_detalhes(post_id):
     post, erro = buscar_post(post_id)
