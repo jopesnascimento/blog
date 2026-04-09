@@ -1,55 +1,67 @@
-<!doctype html>
-<html lang="pt-br">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Blog</title>
-    <link rel="shortcut icon" href="/templates/libro.png" type="image/x-icon" />
-    <script src="https://cdn.tailwindcss.com"></script>
-  </head>
-  <body class="bg-gray-100">
-    <div class="max-w-4xl mx-auto p-6">
-      <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold">Blog</h1>
+{% extends "base.html" %}
 
+{% block title %}Meu Blog{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-4xl font-bold text-center mb-8 text-gray-900 dark:text-white">
+        Meu Blog
+    </h1>
+
+    <div class="text-center mb-8 flex justify-center gap-3 flex-wrap">
         {% if logado %}
-        <div class="flex gap-3">
-          <a href="/novo" class="bg-blue-500 text-white px-4 py-2 rounded">
-            Novo Post
-          </a>
-
-          <a href="/logout" class="text-red-500"> Sair </a>
-        </div>
+            <a href="/novo"
+               class="bg-blue-600 dark:bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600">
+                Criar Novo Post
+            </a>
+            <a href="/logout"
+               class="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-6 py-2 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600">
+                Sair
+            </a>
         {% else %}
-        <a href="/login" class="text-blue-500">Login</a>
+            <a href="/login"
+               class="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-6 py-2 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600">
+                🔐 Entrar
+            </a>
         {% endif %}
-      </div>
+    </div>
 
-      {% for post in posts %}
-      <div class="bg-white p-6 rounded-lg shadow mb-6">
-        <h2 class="text-2xl font-semibold">
-          <a href="/post/{{ post._id }}"> {{ post.titulo }} </a>
+    {% for post in posts %}
+    <article class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+        
+        <h2 class="text-2xl font-bold mb-2">
+            <a href="/post/{{ post._id }}"
+               class="text-blue-600 dark:text-blue-400 hover:underline">
+                {{ post.titulo }}
+            </a>
         </h2>
 
-        <p class="text-gray-500 text-sm mb-3">
-          {{ post.autor }} • {{ post.data }}
+        <!-- 🔥 MOSTRA SÓ UM RESUMO -->
+        <p class="text-gray-700 dark:text-gray-300 mb-4">
+            {{ post.conteudo[:200] }}{% if post.conteudo|length > 200 %}...{% endif %}
         </p>
 
-        {% if logado %}
-        <div class="flex gap-4 mt-2">
-          <a
-            href="/editar/{{ post._id }}"
-            class="text-blue-500 hover:underline"
-          >
-            Editar
-          </a>
+        <small class="text-gray-500 dark:text-gray-400">
+            Por {{ post.autor }} • {{ post.data }}
+        </small>
 
-          <form action="/deletar/{{ post._id }}" method="POST">
-            <button class="text-red-500 hover:underline">Deletar</button>
-          </form>
+        <!-- 🔐 AÇÕES SÓ PARA LOGADO -->
+        {% if logado %}
+        <div class="flex gap-4 mt-4">
+            <a href="/editar/{{ post._id }}"
+               class="text-blue-600 dark:text-blue-400 hover:underline text-sm">
+                Editar
+            </a>
+
+            <form action="/deletar/{{ post._id }}" method="POST">
+                <button class="text-red-500 hover:underline text-sm">
+                    Deletar
+                </button>
+            </form>
         </div>
         {% endif %}
-      </div>
-      {% endfor %}
-    </div>
-  </body>
-</html>
+
+    </article>
+    {% endfor %}
+</div>
+{% endblock %}

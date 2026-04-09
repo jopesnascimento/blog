@@ -1,40 +1,47 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-br">
-  <head>
-    <meta charset="UTF-8" />
+<head>
+    <meta charset="UTF-8">
     <title>{{ post.titulo }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
-  </head>
+</head>
 
-  <body class="bg-gray-100">
-    <div class="max-w-3xl mx-auto px-4 py-8">
-      <div class="bg-white p-8 rounded-lg shadow">
-        <h1 class="text-3xl font-bold mb-4">{{ post.titulo }}</h1>
+<body class="bg-gray-100">
 
-        <p class="text-gray-500 mb-6">{{ post.autor }} • {{ post.data }}</p>
+<div class="max-w-3xl mx-auto px-4 py-8">
+
+    <div class="bg-white p-8 rounded-lg shadow">
+
+        <h1 class="text-3xl font-bold mb-4">
+            {{ post.titulo }}
+        </h1>
+
+        <p class="text-gray-500 mb-6">
+            {{ post.autor }} • {{ post.data }}
+        </p>
 
         <!-- 🔥 TEXTO AJUSTADO -->
-        <div
-          class="text-lg leading-relaxed whitespace-pre-line space-y-4 text-gray-800"
-        >
-          {{ post.conteudo }}
+        <div class="text-lg leading-relaxed whitespace-pre-line space-y-4 text-gray-800">
+            {{ post.conteudo }}
         </div>
 
         {% if logado %}
         <div class="flex gap-4 mt-6">
-          <a
-            href="/editar/{{ post._id }}"
-            class="text-blue-500 hover:underline"
-          >
-            Editar
-          </a>
+            <a href="/editar/{{ post._id }}" class="text-blue-500 hover:underline">
+                Editar
+            </a>
 
-          <form action="/deletar/{{ post._id }}" method="POST">
-            <button class="text-red-500 hover:underline">Deletar</button>
-          </form>
+            <form action="/deletar/{{ post._id }}" method="POST">
+                <button class="text-red-500 hover:underline">
+                    Deletar
+                </button>
+            </form>
         </div>
         {% endif %}
-      </div>
+
     </div>
-  </body>
+
+</div>
+
+</body>
 </html>
