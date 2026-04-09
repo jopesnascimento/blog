@@ -1,99 +1,146 @@
-# 📝 Blog Pessoal com Flask
+# 📰 Blog Pessoal com Flask
 
-Blog dinâmico e responsivo construído com Flask, Jinja2 e Tailwind CSS, com persistência em JSON.
+Aplicação web dinâmica desenvolvida com Python e Flask para criação e gerenciamento de posts, com autenticação de usuário e persistência em MongoDB.
 
-## 🚀 Funcionalidades
+## 🌐 Acesse a aplicação
 
-- ✅ Criar, editar e deletar posts
-- ✅ Visualização individual de posts
-- ✅ Persistência de dados em JSON
-- ✅ Design responsivo com Tailwind CSS
+👉 https://SEU-LINK-DO-RENDER-AQUI
+
+_(Projeto em produção — deploy realizado com Render)_
+
+---
+
+## 🚀 Sobre o projeto
+
+Este projeto começou como um blog simples com persistência em JSON e evoluiu para uma aplicação mais robusta, incorporando autenticação e banco de dados NoSQL.
+
+O objetivo foi simular um sistema real de publicação de conteúdo, aplicando conceitos fundamentais de desenvolvimento web, backend e estruturação de aplicações.
+
+---
+
+## 🧠 Funcionalidades
+
+- 🔐 Sistema de login para acesso administrativo
+- 📝 CRUD completo de posts (criar, editar, deletar)
+- 📄 Visualização individual de posts
+- 🗂️ Persistência de dados com MongoDB
+- 📅 Data de publicação automática
 - ✅ Validação de formulários
-- ✅ Data de publicação automática
-- ✅ Interface limpa e moderna
+- 🎨 Interface responsiva com Tailwind CSS
 
-## 🛠️ Tecnologias
+---
 
-- **Backend:** Python 3.x, Flask
-- **Frontend:** HTML5, Jinja2 Templates, Tailwind CSS
-- **Persistência:** JSON
+## 🛠️ Tecnologias utilizadas
 
-## 📦 Instalação
+**Backend**
+
+- Python 3.x
+- Flask
+- PyMongo
+
+**Frontend**
+
+- HTML5
+- Jinja2 Templates
+- Tailwind CSS
+
+**Infraestrutura**
+
+- Render (deploy)
+
+**Banco de dados**
+
+- MongoDB
+
+---
+
+## 📁 Estrutura do projeto
+
+blog-flask/
+│
+├── app/
+│ ├── routes.py
+│ ├── auth.py
+│ ├── models.py
+│ ├── templates/
+│ └── static/
+│
+├── config.py
+├── run.py
+├── requirements.txt
+└── README.md
+
+---
+
+## ⚙️ Como rodar localmente
 
 ### 1. Clone o repositório
 
-```bash
-git clone https://github.com/seu-usuario/blog-flask.git
-cd blog-flask
-```
+git clone https://github.com/jopesnascimento/portifolio-jornalistico.git  
+cd portifolio-jornalistico
 
-### 2. Crie um ambiente virtual
+### 2. Ambiente virtual
 
-```bash
 python -m venv .venv
 
 # Windows
+
 .venv\Scripts\activate
 
 # Linux/Mac
+
 source .venv/bin/activate
-```
 
-### 3. Instale as dependências
+### 3. Dependências
 
-```bash
 pip install -r requirements.txt
-```
 
-### 4. Execute o servidor
+### 4. Configuração
 
-```bash
-flask run
-```
+MONGO_URI = "mongodb://localhost:27017/blog_db"
 
-A aplicação estará disponível em `http://localhost:5000`
+### 5. Executar
 
-## 📁 Estrutura do Projeto
+python run.py
 
-```
-blog-flask/
-├── app.py              # Aplicação principal
-├── templates/          # Templates HTML
-│   ├── base.html       # Layout base
-│   ├── index.html      # Página inicial
-│   ├── post.html       # Página do post
-│   ├── novo.html       # Criar post
-│   └── editar.html     # Editar post
-├── posts.json          # Banco de dados (gerado automaticamente)
-├── requirements.txt    # Dependências
-└── README.md          # Documentação
-```
+---
 
-## 📚 Rotas da Aplicação
+## 🔐 Autenticação
 
-| Rota              | Método | Descrição                     |
-| ----------------- | ------ | ----------------------------- |
-| `/`               | GET    | Lista todos os posts          |
-| `/post/<id>`      | GET    | Visualiza post específico     |
-| `/novo`           | GET    | Exibe formulário de novo post |
-| `/criar`          | POST   | Cria novo post                |
-| `/editar/<id>`    | GET    | Exibe formulário de edição    |
-| `/atualizar/<id>` | POST   | Atualiza post existente       |
-| `/deletar/<id>`   | POST   | Deleta post                   |
+O sistema possui autenticação básica para proteger rotas administrativas.
 
-## 🎯 Próximos Passos
+_(Sugestão futura: implementar hash de senha e controle de sessão mais robusto)_
 
-- [ ] Implementar dark mode
-- [ ] Adicionar sistema de categorias
-- [ ] Adicionar busca de posts
-- [ ] Migrar para banco de dados SQL
-- [ ] Adicionar autenticação de usuários
-- [ ] Implementar paginação
+---
+
+## 📈 Próximas melhorias
+
+- [ ] Hash de senha (bcrypt)
+- [ ] Cadastro de usuários
+- [ ] Busca de posts
+- [ ] Categorias e tags
+- [ ] Paginação
+- [ ] Melhorar UX do painel admin
+
+---
+
+## 💡 Aprendizados
+
+- Evolução de JSON para MongoDB
+- Estruturação de aplicação Flask
+- Implementação de autenticação
+- Construção de CRUD completo
+- Deploy de aplicação em produção
+
+---
 
 ## 👨‍💻 Autor
 
-João Pedro - [GitHub](https://github.com/seu-usuario)
+João Pedro Souza do Nascimento  
+https://github.com/jopesnascimento
+
+---
 
 ## 📄 Licença
 
-Este projeto está sob a licença MIT.
+MIT
