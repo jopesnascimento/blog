@@ -81,18 +81,6 @@ def post_detalhes(post_id):
 
 
 # ─── Rotas de autenticação ────────────────────────────────────────────────────
-@app.route("/login")
-def login():
-    params = {
-        "client_id":     GOOGLE_CLIENT_ID,
-        "redirect_uri":  GOOGLE_REDIRECT_URI,
-        "response_type": "code",
-        "scope":         "openid email profile",
-        "prompt":        "select_account",
-    }
-    url = GOOGLE_AUTH_URL + "?" + "&".join(f"{k}={v}" for k, v in params.items())
-    return redirect(url)
-
 @app.route("/login/callback")
 def login_callback():
     code = request.args.get("code")
@@ -110,15 +98,19 @@ def login_callback():
     access_token = token_data.get("access_token")
 
     if not access_token:
-        return f"Erro ao autenticar. Resposta do Google: {token_data}", 400
+        return "Erro ao autenticar com o Google.", 400
 
     user_resp = http_requests.get(GOOGLE_USER_URL,
                                   headers={"Authorization": f"Bearer {access_token}"})
     user_info = user_resp.json()
     email     = user_info.get("email")
 
-    # DEBUG — remove depois que funcionar
-    return f"Email recebido: '{email}' | Email esperado: '{DONO_EMAIL}'"
+    if email != DONO_EMAIL:
+        return render_template("acesso_negado.html"), 403
+
+    session["email"] = email
+    session["nome"]  = user_info.get("name", "")
+    return redirect("/")
 
 @app.route("/logout")
 def logout():
