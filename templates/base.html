@@ -1,37 +1,37 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" />
     <title>{% block title %}Blog do João{% endblock %}</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
 
     <script type="text/tailwindcss">
-        @config {
-            darkMode: 'selector'
-        }
+      @config {
+          darkMode: 'selector'
+      }
     </script>
 
     <script>
-        if (localStorage.getItem("darkMode") === "true") {
-            document.documentElement.classList.add("dark");
-        }
+      if (localStorage.getItem("darkMode") === "true") {
+        document.documentElement.classList.add("dark");
+      }
     </script>
-</head>
-<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
-
+  </head>
+  <body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
     {% block content %}{% endblock %}
 
     <script>
-        const toggle = document.getElementById("darkModeToggle");
-        if (toggle) {
-            toggle.addEventListener("click", () => {
-                document.documentElement.classList.toggle("dark");
-                const isDark = document.documentElement.classList.contains("dark");
-                localStorage.setItem("darkMode", isDark);
-            });
-        }
+      const toggle = document.getElementById("darkModeToggle");
+      if (toggle) {
+        toggle.addEventListener("click", () => {
+          document.documentElement.classList.toggle("dark");
+          const isDark = document.documentElement.classList.contains("dark");
+          localStorage.setItem("darkMode", isDark);
+        });
+      }
     </script>
-</body>
+  </body>
 </html>
