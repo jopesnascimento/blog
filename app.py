@@ -5,20 +5,14 @@ from bson.errors import InvalidId
 from datetime import datetime
 from functools import wraps
 import os
-import requests as http_requests
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "troque-isso-em-producao")
 
-# ─── Configuração Google OAuth ────────────────────────────────────────────────
-GOOGLE_CLIENT_ID     = os.environ.get("GOOGLE_CLIENT_ID")
-GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET")
-GOOGLE_REDIRECT_URI  = os.environ.get("GOOGLE_REDIRECT_URI")
-DONO_EMAIL           = os.environ.get("DONO_EMAIL")
-
-GOOGLE_AUTH_URL  = "https://accounts.google.com/o/oauth2/v2/auth"
-GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token"
-GOOGLE_USER_URL  = "https://www.googleapis.com/oauth2/v3/userinfo"
+# ─── Credenciais do dono ──────────────────────────────────────────────────────
+# Defina ADMIN_USER e ADMIN_PASS como variáveis de ambiente no Render
+ADMIN_USER = os.environ.get("ADMIN_USER", "joao")
+ADMIN_PASS = os.environ.get("ADMIN_PASS", "1234")
 
 # ─── Conexão com MongoDB ──────────────────────────────────────────────────────
 MONGO_URI = os.environ.get("MONGO_URI", "mongodb://localhost:27017/")
@@ -29,10 +23,9 @@ colecao   = db["posts"]
 
 # ─── Helpers de autenticação ──────────────────────────────────────────────────
 def usuario_logado():
-    return session.get("email") == DONO_EMAIL
+    return session.get("logado") is True
 
 def requer_login(f):
-    """Decorator que protege rotas de admin."""
     @wraps(f)
     def decorated(*args, **kwargs):
         if not usuario_logado():
@@ -80,46 +73,18 @@ def post_detalhes(post_id):
     return render_template("post.html", post=post, logado=usuario_logado())
 
 
-# ─── Rotas de autenticação ────────────────────────────────────────────────────
-@app.route("/login")
+# ─── Login / Logout ───────────────────────────────────────────────────────────
+@app.route("/login", methods=["GET", "POST"])
 def login():
-    params = {
-        "client_id":     GOOGLE_CLIENT_ID,
-        "redirect_uri":  GOOGLE_REDIRECT_URI,
-        "response_type": "code",
-        "scope":         "openid email profile",
-        "prompt":        "select_account",
-    }
-    url = GOOGLE_AUTH_URL + "?" + "&".join(f"{k}={v}" for k, v in params.items())
-    # DEBUG — mostra a URL gerada antes de redirecionar
-    return f"URL gerada: <a href='{url}'>{url}</a>"
-
-@app.route("/login/callback")
-def login_callback():
-    code = request.args.get("code")
-    if not code:
-        return "Login cancelado.", 400
-
-    token_resp = http_requests.post(GOOGLE_TOKEN_URL, data={
-        "code":          code,
-        "client_id":     GOOGLE_CLIENT_ID,
-        "client_secret": GOOGLE_CLIENT_SECRET,
-        "redirect_uri":  GOOGLE_REDIRECT_URI,
-        "grant_type":    "authorization_code",
-    })
-    token_data   = token_resp.json()
-    access_token = token_data.get("access_token")
-
-    if not access_token:
-        return f"Erro ao autenticar. Resposta do Google: {token_data}", 400
-
-    user_resp = http_requests.get(GOOGLE_USER_URL,
-                                  headers={"Authorization": f"Bearer {access_token}"})
-    user_info = user_resp.json()
-    email     = user_info.get("email")
-
-    # DEBUG — remove depois que funcionar
-    return f"Email recebido: '{email}' | Email esperado: '{DONO_EMAIL}'"
+    erro = None
+    if request.method == "POST":
+        user = request.form.get("usuario", "")
+        pwd  = request.form.get("senha", "")
+        if user == ADMIN_USER and pwd == ADMIN_PASS:
+            session["logado"] = True
+            return redirect("/")
+        erro = "Usuário ou senha incorretos."
+    return render_template("login.html", erro=erro)
 
 @app.route("/logout")
 def logout():
@@ -127,7 +92,7 @@ def logout():
     return redirect("/")
 
 
-# ─── Rotas protegidas (só o dono) ────────────────────────────────────────────
+# ─── Rotas protegidas ─────────────────────────────────────────────────────────
 @app.route("/novo")
 @requer_login
 def novo_post():
