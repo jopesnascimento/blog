@@ -24,16 +24,16 @@ block content %}
 
     <div class="flex gap-4 flex-wrap">
       <a
-        href="/editar/{{ post.id }}"
+        href="/editar/{{ post._id }}"
         class="bg-yellow-500 dark:bg-yellow-600 text-white px-6 py-2 rounded-lg hover:bg-yellow-600 dark:hover:bg-yellow-700 font-semibold"
       >
         ✏️ Editar Post
       </a>
 
       <form
-        action="/deletar/{{ post.id }}"
+        action="/deletar/{{ post._id }}"
         method="POST"
-        onsubmit="return confirm('Tem certeza que deseja deletar este post?')"
+        onsubmit="return confirm('Tem certeza que deseja deletar este post?');"
         class="inline"
       >
         <button

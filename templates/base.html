@@ -1,25 +1,25 @@
-<head>
+<!doctype html>
+<html lang="pt-BR">
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}Blog do João{% endblock %}</title>
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Configuração do Tailwind DEPOIS do CDN -->
-    <script type="text/tailwindcss">
-        @config {
-            darkMode: 'selector'
-        }
-    </script>
-    
-    <script>
-        if (localStorage.getItem("darkMode") === "true") {
-            document.documentElement.classList.add("dark");
-        }
-    </script>
-</head>
-  <body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
 
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script type="text/tailwindcss">
+      @config {
+          darkMode: 'selector'
+      }
+    </script>
+
+    <script>
+      if (localStorage.getItem("darkMode") === "true") {
+        document.documentElement.classList.add("dark");
+      }
+    </script>
+  </head>
+  <body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
     {% block content %}{% endblock %}
 
     <script>

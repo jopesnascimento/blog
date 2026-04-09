@@ -1,106 +1,133 @@
 from flask import Flask, render_template, request, redirect
-import json
+from pymongo import MongoClient
+from bson import ObjectId
+from bson.errors import InvalidId
 from datetime import datetime
 import os
 
 app = Flask(__name__)
 
-#Funções auxiliares
-def carregar_post():
+# ─── Conexão com MongoDB ───────────────────────────────────────────────────────
+# Local:  mongodb://localhost:27017/
+# Atlas:  mongodb+srv://usuario:senha@cluster.mongodb.net/blog
+MONGO_URI = os.environ.get("MONGO_URI", "mongodb://localhost:27017/")
+client = MongoClient(MONGO_URI)
+db = client["blog"]
+colecao = db["posts"]
+
+
+# ─── Helpers ──────────────────────────────────────────────────────────────────
+def validar_post(titulo, conteudo, autor):
+    """Retorna lista de erros. Lista vazia = tudo ok."""
+    erros = []
+    if not titulo.strip():
+        erros.append("Título não pode estar vazio.")
+    elif len(titulo.strip()) > 120:
+        erros.append("Título muito longo (máx. 120 caracteres).")
+    if not conteudo.strip():
+        erros.append("Conteúdo não pode estar vazio.")
+    if not autor.strip():
+        erros.append("Autor não pode estar vazio.")
+    elif len(autor.strip()) > 60:
+        erros.append("Nome do autor muito longo (máx. 60 caracteres).")
+    return erros
+
+
+def buscar_post(post_id):
+    """Busca post pelo ID. Retorna (post, erro) — um dos dois será None."""
     try:
-        with open('post.json',"r",encoding='utf-8') as arquivo:
-            return json.load(arquivo)
-    except FileNotFoundError:
-        return []
-    
-def salvar_post():
-    with open('post.json','w',encoding="utf-8") as arquivo:
-        json.dump(posts,arquivo, indent=2, ensure_ascii=False)
-
-posts = carregar_post()
+        post = colecao.find_one({"_id": ObjectId(post_id)})
+    except InvalidId:
+        return None, ("ID inválido", 400)
+    if not post:
+        return None, ("Post não encontrado", 404)
+    return post, None
 
 
-#app - sempre coloco isso para não me perder
+# ─── Rotas ────────────────────────────────────────────────────────────────────
 @app.route("/")
 def home_page():
-    return render_template("index.html",posts=posts)
+    posts = list(colecao.find().sort("_id", -1))  # mais recentes primeiro
+    return render_template("index.html", posts=posts)
 
-@app.route("/post/<int:post_id>")
+
+@app.route("/post/<post_id>")
 def post_detalhes(post_id):
+    post, erro = buscar_post(post_id)
+    if erro:
+        return erro
+    return render_template("post.html", post=post)
 
-    for post in posts:
-        if post["id"] == post_id:
-            return render_template("post.html",post=post)
-        
-    return "Post não encontrado",404
+
 @app.route("/novo")
 def novo_post():
     return render_template("novo.html")
 
-@app.route("/criar", methods = ["POST"])
+
+@app.route("/criar", methods=["POST"])
 def criar_post():
-    titulo = request.form['titulo']
-    conteudo = request.form['conteudo']
-    autor = request.form['autor']
+    titulo   = request.form.get("titulo", "")
+    conteudo = request.form.get("conteudo", "")
+    autor    = request.form.get("autor", "")
 
-    if len(posts) == 0:
-        novo_id = 1
-    else:
-        novo_id = posts[-1]["id"] + 1
+    erros = validar_post(titulo, conteudo, autor)
+    if erros:
+        return render_template("novo.html", erros=erros,
+                               titulo=titulo, conteudo=conteudo, autor=autor)
 
-    novo_post = {
-        "id": novo_id,
-        "titulo":titulo,
-        "conteudo":conteudo,
-        "autor":autor,
-        "data": datetime.now().strftime("%d/%m/%Y %H:%M")
-    }
-
-    if not titulo.strip():
-        return "Título não pode estar vazio", 400
-    
-    if not conteudo.strip():
-        return "Conteúdo não pode estar vazio", 400
-    
-    if not autor.strip():
-        return "Autor não pode estar vazio", 400
-
-    posts.append(novo_post)
-    salvar_post()
-    return redirect('/')
+    colecao.insert_one({
+        "titulo":   titulo.strip(),
+        "conteudo": conteudo.strip(),
+        "autor":    autor.strip(),
+        "data":     datetime.now().strftime("%d/%m/%Y %H:%M")
+    })
+    return redirect("/")
 
 
-@app.route('/editar/<int:post_id>')
+@app.route("/editar/<post_id>")
 def editar_post(post_id):
-    
-    for post in posts:
-        if post["id"] == post_id:
-       
-            return render_template("editar.html", post=post)
-  
-    return "Post não encontrado", 404
-@app.route("/atualizar/<int:post_id>", methods=["POST"])
-def atualizar_post(post_id):
-    # Procurar o post pelo ID
-    for post in posts:
-        if post['id'] == post_id:
-            post["titulo"] = request.form["titulo"]
-            post["conteudo"] = request.form["conteudo"]
-            post["autor"] = request.form["autor"]
-            salvar_post()
-            return redirect(f"/post/{post_id}")
-        
-    return "Post não encontrado",404
-@app.route("/deletar/<int:post_id>",methods=['POST'])
-def deletar_post(post_id):
-    for post in posts:
- 
-        if post["id"] == post_id:
-            posts.remove(post)
-            salvar_post()
-            return redirect("/")
-    return('Post não encontrado',404)
+    post, erro = buscar_post(post_id)
+    if erro:
+        return erro
+    return render_template("editar.html", post=post)
 
-if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
+
+@app.route("/atualizar/<post_id>", methods=["POST"])
+def atualizar_post(post_id):
+    post, erro = buscar_post(post_id)
+    if erro:
+        return erro
+
+    titulo   = request.form.get("titulo", "")
+    conteudo = request.form.get("conteudo", "")
+    autor    = request.form.get("autor", "")
+
+    erros = validar_post(titulo, conteudo, autor)
+    if erros:
+        post.update({"titulo": titulo, "conteudo": conteudo, "autor": autor})
+        return render_template("editar.html", post=post, erros=erros)
+
+    colecao.update_one(
+        {"_id": ObjectId(post_id)},
+        {"$set": {
+            "titulo":   titulo.strip(),
+            "conteudo": conteudo.strip(),
+            "autor":    autor.strip(),
+        }}
+    )
+    return redirect(f"/post/{post_id}")
+
+
+@app.route("/deletar/<post_id>", methods=["POST"])
+def deletar_post(post_id):
+    post, erro = buscar_post(post_id)
+    if erro:
+        return erro
+    colecao.delete_one({"_id": ObjectId(post_id)})
+    return redirect("/")
+
+
+# ─── Inicialização ────────────────────────────────────────────────────────────
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=True)
